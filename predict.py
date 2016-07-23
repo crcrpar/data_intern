@@ -53,7 +53,7 @@ def prepare_nfm(k = 20):
 
     return P, Q
 
-def nmf(R, P = None, Q = None, epochs = 5000, alpha = 0.0002, beta = 0.02):
+def nmf(R, P = None, Q = None, epochs = 500, alpha = 0.0002, beta = 0.02):
 
     cols = R.shape[0]
     rows = R.shape[1]
@@ -93,11 +93,3 @@ def nmf(R, P = None, Q = None, epochs = 5000, alpha = 0.0002, beta = 0.02):
             # 終了条件
 
     return P, Q.T
-
-def main():
-    prefs_1 = loadMovie(filename = 'u1.base')
-    R_1 = convertDicToArray(prefs = prefs_1)
-    P_1, Q_1 = prepare_nfm(k = 20)
-    P_1_, Q_1_ = nmf(R = R_1, P = P_1, Q = Q_1, epochs = 50)
-    R_1_hat = np.dot(P_1_, Q_1_.T)
-    prefs_1_test = loadMovie(filename = 'u1.test')
