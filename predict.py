@@ -4,6 +4,10 @@
 from __future__ import print_function
 import numpy as np
 
+
+num_of_reviewer = 943
+num_of_item = 1682
+
 def loadMovie(filename = None, path = './ml-100k/'):
     '''
     this function returns dictionary of ratings of movies by users.
@@ -24,6 +28,9 @@ def loadMovie(filename = None, path = './ml-100k/'):
     return prefs
 
 def convertDicToArray(prefs = None, cols = num_of_reviewer, rows = num_of_item):
+    '''
+    loadMovie関数で作った辞書をnumpy ndarrayに変換する
+    '''
     R = np.zeros((cols, rows), dtype = np.float32)
     movies = makeMovieDictionary()
 
@@ -37,9 +44,14 @@ def convertDicToArray(prefs = None, cols = num_of_reviewer, rows = num_of_item):
 
     return R
 
-def prepare_nfm(pc = 20):
-    P = np.random.rand(self.cols, pc)
-    Q = np.random.rand(self.rows, pc)
+def prepare_nfm(k = 20):
+    '''
+    NFMの準備として特徴量をkとして正のランダムな値で初期化したP,Qを用意する
+    '''
+    P = np.random.rand(num_of_reviewer, k)
+    Q = np.random.rand(num_of_item, k)
+
+    return P, Q
 
 def nmf(R, P = None, Q = None, epochs = 5000, alpha = 0.0002, beta = 0.02):
 
@@ -67,16 +79,25 @@ def nmf(R, P = None, Q = None, epochs = 5000, alpha = 0.0002, beta = 0.02):
             for j in range(rows):
                 if R[i, j] > 0:
                     e = e + pow(R[i,j] - np.dot(P[i,:], Q[:,j]), 2)
-                    #print("error: {}".format())
 
                     for k in range(K):
                         e = e + (beta / 2) * (pow(P[i,k],2) + pow(Q[k,j], 2))
 
         if epoch % 10 == 0:
             print("Error: {}".format(e))
+            # 10回1回erroを表示
 
 
         if e < 0.001:
             break
+            # 終了条件
 
     return P, Q.T
+
+def main():
+    prefs_1 = loadMovie(filename = 'u1.base')
+    R_1 = convertDicToArray(prefs = prefs_1)
+    P_1, Q_1 = prepare_nfm(k = 20)
+    P_1_, Q_1_ = nmf(R = R_1, P = P_1, Q = Q_1, epochs = 50)
+    R_1_hat = np.dot(P_1_, Q_1_.T)
+    prefs_1_test = loadMovie(filename = 'u1.test')
